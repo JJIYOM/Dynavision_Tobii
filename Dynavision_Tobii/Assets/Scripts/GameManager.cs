@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    #region 변수
     public GameObject Spheres;
     public Material Red;
     public Material White;
@@ -11,7 +12,9 @@ public class GameManager : MonoBehaviour
     public float sum;
     public List<int> Overlap;
     public int sphereNum;
+    #endregion
 
+    #region Singleton
     private static GameManager gm;
     public static GameManager GM
     {
@@ -22,18 +25,7 @@ public class GameManager : MonoBehaviour
     {
         gm = GetComponent<GameManager>();
     }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    #endregion
 
     //컬러변환 함수
     IEnumerator RandomColor()
@@ -41,9 +33,9 @@ public class GameManager : MonoBehaviour
         float time = 5f - GazeEvent.GE.seeTime;
         yield return new WaitForSeconds(time);
 
-        if (Overlap.Count < 12) //총 12번 60초
+        if (Overlap.Count < 12) //총 12번, 60초
         {            
-            if (Overlap.Count > 0)
+            if (Overlap.Count > 0) //단계 끝날 때 마다 데이터 저장
             {
                 DynaR2 temp2 = new DynaR2();
                 temp2.StayTime = GazeEvent.GE.stayTime.ToString();
@@ -59,18 +51,20 @@ public class GameManager : MonoBehaviour
 
             //랜덤 빨간색
             Spheres.transform.GetChild(sphereNum).GetComponent<MeshRenderer>().material = Red;
+
             GazeEvent.GE.timerOn = true;
             GazeEvent.GE.IslightOn = true;
             GazeEvent.GE.FirstLightOn = true;
 
         }
-        else
+        else //12번 반복이 끝나면
         {
             DynaR2 temp2 = new DynaR2();
             temp2.StayTime = GazeEvent.GE.stayTime.ToString();
             Dyna_Result.DynaR2.Add(temp2);
             Debug.Log(GazeEvent.GE.stayTime);
 
+            //평균 구하기
             for (int i = 0; i < GazeEvent.GE.FirstTimelist.Count; i++)
             {
                 sum += GazeEvent.GE.FirstTimelist[i];
@@ -81,14 +75,15 @@ public class GameManager : MonoBehaviour
 
             Debug.Log("Finish");
         }
-    }//컬러변환 함수
-
+    }
+    
+    //컬러변환 함수
     public void LightOff()
     {
-        Spheres.transform.GetChild(sphereNum).GetComponent<MeshRenderer>().material = White;
+        Spheres.transform.GetChild(sphereNum).GetComponent<MeshRenderer>().material = White; //흰색으로 lightOff
 
         UIManager.UI._stage++;
-        if (UIManager.UI._stage != 31) UIManager.UI.ViewStage();
+        if (UIManager.UI._stage != 13) UIManager.UI.ViewStage(); //stage text
         GazeEvent.GE.timerOn = false;
         GameManager.GM.StartCoroutine("RandomColor");
     }

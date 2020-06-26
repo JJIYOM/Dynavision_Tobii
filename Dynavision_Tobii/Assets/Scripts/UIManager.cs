@@ -5,8 +5,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/*
+ * UI 관련 스크립트
+ */
+
 public class UIManager : MonoBehaviour
 {
+    #region 변수
     public GameObject StartPanel;
     public GameObject ResultPanel;
     public GameObject PausePanel;
@@ -17,8 +22,9 @@ public class UIManager : MonoBehaviour
     public Text ResultTime;
     public Text[] ResponseTime;
     public float _result = 0f;
+    #endregion
 
-
+    #region Singleton
     private static UIManager _uiManager;
     public static UIManager UI
     {
@@ -29,82 +35,72 @@ public class UIManager : MonoBehaviour
     {
         _uiManager = GetComponent<UIManager>();
     }
+    #endregion
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public void OnApplicationQuit()
+    public void OnApplicationQuit() //게임 종료 시 데이터 CSV 출력
     {
         UpdateCarFile();
         UpdateCarFileR();
     }
 
-    public void GameStart()
+    public void GameStart() //게임 시작
     {
         Time.timeScale = 1f;
         GazeEvent.GE.TotalTimer = true;
         StartPanel.SetActive(false);
         //CreateCarFile(); //파일 만들기
         //CreateCarFileR();
-        GameManager.GM.StartCoroutine("RandomColor");
+        GameManager.GM.StartCoroutine("RandomColor"); //코루틴 실행
 
         //GameManager.GM.RandomC(); //몇초뒤에 뜨는걸로 해야할듯 처음에는
     }
 
-    public void ReStart()
+    public void ReStart() //다시 시작
     {
         SceneManager.LoadScene("Dynavision");
     }
 
-    public void ViewStage()
+    public void ViewStage() //Stage text 설정
     {
         Stage.text = "Stage : " + _stage + " / 12";
     }
 
-    public void ViewTime()
+    public void ViewTime() //시선 반응 시간 text 설정
     {
         time.text = string.Format("Time : {0:N3}", _time);
         //  = "Time : " + _time;
     }
 
-    public void ViewResult()
+    public void ViewResult() //결과 화면
     {
         ResultPanel.SetActive(true);
-        for (int i = 0; i < GazeEvent.GE.FirstTimelist.Count; i++)
+        for (int i = 0; i < GazeEvent.GE.FirstTimelist.Count; i++) //각 단계 반응 시간
         {
             ResponseTime[i].text = string.Format("{0:N3}", GazeEvent.GE.FirstTimelist[i]);
         }
-        ResultTime.text = string.Format("평균시간 : {0:N3}", _result);
+        ResultTime.text = string.Format("평균시간 : {0:N3}", _result); //평균 시간
         Time.timeScale = 0f;
         //= "평균시간 : " + _result;      
     }
 
-    public void Pause()
+    public void Pause() //일시정지
     {
         PausePanel.SetActive(true);
         Time.timeScale = 0f;
     }
 
-    public void Continue()
+    public void Continue() //계속하기
     {
         PausePanel.SetActive(false);
         Time.timeScale = 1f;
     }
 
-    public void Exit()
+    public void Exit() //나가기
     {
         Application.Quit();
     }
 
-    void CreateCarFile()
+    void CreateCarFile() //Saved_data_Dyna.csv 생성
     {
         if (!System.IO.File.Exists(Dyna_Data.getPath()) || new FileInfo(Dyna_Data.getPath()).Length == 0)
         {
@@ -138,7 +134,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    void UpdateCarFile()
+    void UpdateCarFile() //Saved_data_Dyna.csv에 값 덮어쓰기
     {
         string filePath = Dyna_Data.getPath();
         StreamWriter outStream = System.IO.File.CreateText(filePath);
@@ -152,7 +148,7 @@ public class UIManager : MonoBehaviour
         outStream.Close();
     }
 
-    void CreateCarFileR()
+    void CreateCarFileR() //Dyna_Result.csv 생성
     {
         if (!System.IO.File.Exists(Dyna_Result.getPath()) || new FileInfo(Dyna_Result.getPath()).Length == 0)
         {
@@ -177,7 +173,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    void UpdateCarFileR()
+    void UpdateCarFileR() //Dyna_Result.csv에 값 덮어쓰기
     {
         string filePath = Dyna_Result.getPath();
         StreamWriter outStream = System.IO.File.CreateText(filePath);

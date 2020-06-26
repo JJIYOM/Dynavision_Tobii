@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class GazeEvent : MonoBehaviour
 {
+    #region 변수
     public int Stage = 0;
     public float time = 0; //UI 관련 시간
     public float T_time = 0;
@@ -18,10 +19,9 @@ public class GazeEvent : MonoBehaviour
     public bool IsSeeR = false;
     public bool FirstLightOn = false;
     public List<float> FirstTimelist;
+    #endregion
 
-
-    //IEnumerator enumerator;
-
+    #region Singleton
     private static GazeEvent ge;
     public static GazeEvent GE
     {
@@ -32,11 +32,7 @@ public class GazeEvent : MonoBehaviour
     {
         ge = GetComponent<GazeEvent>();
     }
-
-    void Start()
-    {
-
-    }
+    #endregion
 
     //수정 : 공 1초 stay 기능 삭제, 한번 보면 다음 단계
     //총 싸이클 5초, 1초보면 4초, 2초보면 3초 뒤에 공 뜨는 식으로
@@ -89,21 +85,20 @@ public class GazeEvent : MonoBehaviour
                 IsSeeR = true;
                 AddSaveOResult();
 
-                FirstTimelist.Add(seeTime);
+                FirstTimelist.Add(seeTime); //최초 시선 list에 값 넣기
                 UIManager.UI._time = seeTime;
                 UIManager.UI.ViewTime();
                 Debug.Log("SeeTime : " +seeTime); //최초 시간 출력
                 timerOn = false;
 
-                other.GetComponent<MeshRenderer>().material = GameManager.GM.White;
-                GameManager.GM.StartCoroutine("RandomColor");
+                other.GetComponent<MeshRenderer>().material = GameManager.GM.White; //공 lightOff
+                GameManager.GM.StartCoroutine("RandomColor"); //다시 랜덤 이벤트 실행
                 UIManager.UI._stage++;
-                if (UIManager.UI._stage != 13) UIManager.UI.ViewStage();
+                if (UIManager.UI._stage != 13) UIManager.UI.ViewStage(); //총 12번 반복시 결과화면 출력
             }          
         }
     }
 
-    //이거 우선 삭제
     private void OnTriggerStay(Collider other) //응시(우선 1초)
     {
         #region 주석
@@ -193,14 +188,15 @@ public class GazeEvent : MonoBehaviour
         //}
         #endregion
     }
-    //시선속도 측정
 
+    //시선속도 측정
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.name == GameManager.GM.RandomName)
             IsSeeR = false;
     }
-    void AddSavedData()
+
+    void AddSavedData() //데이터 저장
     {
         GazePoint gazePoint = TobiiAPI.GetGazePoint();
         //시선 좌표 Data 
@@ -211,16 +207,16 @@ public class GazeEvent : MonoBehaviour
         Data.EyeLocation_x = (gazePoint.Screen.x - 12 - 960).ToString();
         Data.EyeLocation_y = (gazePoint.Screen.y - 12 - 540).ToString();
 
-        if (!IsSee && !lightOff)
+        if (!IsSee && !lightOff) //이벤트 실행 안되는 동안
             Data.CheckPoint = "";
-        else if (!IsSee && lightOff) //보지 않고
+        else if (!IsSee && lightOff) //이벤트 실행됐는데 보지 않았을 경우
             Data.CheckPoint = "X";
-        else
+        else //봤을 경우
             Data.CheckPoint = GameManager.GM.RandomName;
 
         Dyna2 Data2 = new Dyna2();
 
-        if (FirstLightOn)
+        if (FirstLightOn) //불 켜진 공 번호 입력
         {
             Data2.LightOn = GameManager.GM.RandomName;
             FirstLightOn = false;
@@ -238,7 +234,7 @@ public class GazeEvent : MonoBehaviour
         lightOff = false;
     }
 
-    public void AddSaveOResult()
+    public void AddSaveOResult() //봤을 경우 O data 추가
     {
         Stage++;
         DynaR temp = new DynaR();
@@ -252,7 +248,7 @@ public class GazeEvent : MonoBehaviour
         stayTime = 0f;
     }
 
-    void AddSaveXResult()
+    void AddSaveXResult() //안봤을 경우 X data 추가
     {
         Stage++;
         DynaR temp = new DynaR(); //틀림, 반응시간 추가...
@@ -263,7 +259,7 @@ public class GazeEvent : MonoBehaviour
         Dyna_Result.DynaR.Add(temp);
     }
 
-    void TimeCheck()
+    void TimeCheck() //시간 측정
     {
         if (TotalTimer) //전체 소요 시간
         {
